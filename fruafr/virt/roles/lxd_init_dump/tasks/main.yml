@@ -18,4 +18,16 @@
 
 - name: 'Backup (dump) the lxd init configuration'
   become: true
-  shell: "lxd init --dump > {{ filepath }}"
+  shell: "lxd init --dump > /tmp/lxd_preseed.yml"
+
+- name: 'Fetch backup file'
+  ansible.builtin.fetch:
+    src: '/tmp/lxd_preseed.yml'
+    dest: "{{ filepath }}"
+    mode: '0644'
+
+- name: Remove temporary file (delete file)
+  ansible.builtin.file:
+    path: '/tmp/lxd_preseed.yml'
+    state: absent
+

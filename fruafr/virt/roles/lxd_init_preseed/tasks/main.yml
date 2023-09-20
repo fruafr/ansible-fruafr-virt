@@ -16,6 +16,21 @@
       filepath: "{{ filepath_prompt.user_input }}"
   when: filepath is not defined
 
+- name: 'Copy preseed file'
+  become: true  
+  ansible.builtin.copy:
+    src: "{{ filepath }}"
+    dest: /tmp/lxd_preseed.yml
+    owner: root
+    group: root
+    mode: '0644'
+    remote_src: "{{ remote_src | default(false) }}"
+
 - name: 'Load (preseed) the lxd init configuration'
   become: true
-  shell: "lxd init --preseed < {{ filepath }}"
+  shell: "lxd init --preseed < /tmp/lxd_preseed.yml"
+
+- name: Remove temporary file (delete file)
+  ansible.builtin.file:
+    path: '/tmp/lxd_preseed.yml'
+    state: absent
