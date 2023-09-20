@@ -1,0 +1,127 @@
+---
+# (c) Copyright: David HEURTEVENT, 2023
+# License: GPL 3.0
+# tasks file for packages_kvm
+
+#Install KVM/libvirt (virt-manager is optional with gui:true)
+
+# Debian/Ubuntu
+- block:
+
+  #sudo apt-get update
+  - name: "APT - update"
+    ansible.builtin.apt:
+      update_cache: true
+      cache_valid_time: 86400 #One day
+    register: cache_updated
+
+  - block:
+    # Install
+    - block :
+      # Ubuntu
+      #https://linuxize.com/post/how-to-install-kvm-on-ubuntu-18-04/
+      #https://linuxize.com/post/how-to-install-kvm-on-ubuntu-20-04/
+
+      #sudo apt-get -y install qemu-kvm libvirt-bin bridge-utils virtinst 
+      - name: "Install KVM/libvirt on Ubuntu 18.04"
+        ansible.builtin.apt:
+          pkg:
+            - qemu-kvm 
+            - libvirt-bin
+            - bridge-utils
+            - virtinst
+          state: latest
+        register: kvm_installed
+        when: ansible_distribution_version == '18.04'
+
+      #sudo apt-get -y install qemu-kvm libvirt-daemon-system libvirt-clients libvirt-daemon bridge-utils virtinst 
+      - name: "Install KVM/libvirt on Ubuntu 18.10"
+        ansible.builtin.apt:
+          pkg:
+            - qemu-kvm 
+            - libvirt-daemon-system
+            - libvirt-clients
+            - libvirt-daemon
+            - bridge-utils
+            - virtinst
+          state: latest
+        register: kvm_installed
+        when: ansible_distribution_version == '18.10'
+
+      #sudo apt-get -y install qemu-kvm libvirt-daemon-system libvirt-clients libvirt-daemon bridge-utils virtinst 
+      - name: "Install KVM/libvirt after Ubuntu 18.10"
+        ansible.builtin.apt:
+          pkg:
+            - qemu-kvm 
+            - libvirt-daemon-system
+            - libvirt-clients
+            - libvirt-daemon
+            - bridge-utils
+            - virtinst
+        state: latest
+        register: kvm_installed
+        when: ansible_distribution_major_version | int) > 18
+      when: ansible_distribution == 'Ubuntu'
+
+    # Debian
+    #https://kifarunix.com/install-kvm-on-debian-12/?expand_article=1
+    - block:
+      #sudo apt-get -y install qemu-kvm libvirt-daemon-system libvirt-clients libvirt-daemon bridge-utils virtinst qemu-utils
+      - name: "Install KVM/libvirt after Ubuntu 18.10"
+        ansible.builtin.apt:
+          pkg:
+            - qemu-kvm 
+            - libvirt-daemon-system
+            - libvirt-clients
+            - libvirt-daemon
+            - bridge-utils
+            - virtinst
+            - qemu-utils
+        state: latest
+        register: kvm_installed
+      when: ansible_distribution == 'Debian'
+    when: cache_updated
+
+  # Common to Debian family
+  - block:
+    #sudo usermod -aG libvirt $USER
+    - name: "Ansible user in group libvirt"
+      ansible.builtin.user:
+        name: "{{ ansible_user }}"
+        group: libvirt
+        append: true
+      
+    #sudo usermod -aG kvm $USER
+    - name: "Ansible user in group kvm"
+      ansible.builtin.user:
+        name: "{{ ansible_user }}"
+        group: kvm
+        append: true
+      register: kvm_configured
+
+    ## GUI
+    - name: 'Install virt-manager (if appropriate)'
+      ansible.builtin.apt:
+        pkg:
+          - virt-manager
+        state: latest
+      register: kvm_installed
+      when: gui and cache_updated
+
+    when: kvm_installed is defined
+  when: ansible_os_family == 'Debian'
+
+# Common
+- block:
+  #sudo systemctl enable --now libvirtd
+  - name: "KVM/libvirt enabled at boot"
+    service:
+      name: 'libvirtd'
+      enabled: true
+
+  #sudo systemctl start libvirtd
+  - name: "KVM/libvirt started"
+    service:
+      name: 'libvirtd'
+      state: started
+  when: kvm_configured is defined
