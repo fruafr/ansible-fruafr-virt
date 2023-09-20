@@ -1,0 +1,10 @@
+---
+# (c) Copyright: David HEURTEVENT, 2023
+# License: GPL 3.0
+# Test podman install
+- hosts: all
+  become: true
+  collections:
+    - fruafr.virt
+  roles:
+    - podman_test
