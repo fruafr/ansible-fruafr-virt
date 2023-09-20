@@ -1,0 +1,28 @@
+---
+# (c) Copyright: David HEURTEVENT, 2023
+# License: GPL 3.0
+# tasks file for docker_list_containers
+
+# DOCKER - List containers
+
+- name: SERVICE - Ensure Docker is started
+  become: true
+  ansible.builtin.service:
+    name: docker
+    state: started
+  register: docker_started
+
+- block:
+  - name: DOCKER - List containers
+    ansible.builtin.shell:
+      "docker container ls -a"
+    register: msg
+
+  - name: DOCKER - Display list of containers (docker container ls -a)
+    ansible.builtin.debug:
+      msg: "{{msg.stdout_lines}}"
+    when: msg is defined
+  
+  when: docker_started is succeeded
+
+

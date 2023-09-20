@@ -1,0 +1,79 @@
+---
+# (c) Copyright: David HEURTEVENT, 2023
+# License: GPL 3.0
+# tasks file for docker_create_container
+
+# DOCKER - Create container(s)
+
+- name: SERVICE - Ensure Docker is started
+  ansible.builtin.service:
+    name: docker
+    state: started
+  register: docker_started
+
+- block:
+  # Set variables
+  - block:
+    - name: Set image if not specified
+      pause:
+        prompt: 'Enter the image name'
+      register: image_prompt
+      
+    - set_fact:
+        container_image: "{{ image_prompt.user_input }}"
+    when: container_image is not defined
+
+  - block:
+    - name: Set base container name if not specified
+      pause:
+        prompt: 'Enter the base name of the container (will be appended if several)'
+      register: name_prompt
+    - set_fact: 
+        container_name: "{{ name_prompt.user_input }}"
+    when: container_name is not defined
+
+  - block:
+    - name: Set number of containers to create if not specified
+      pause:
+        prompt: 'Enter the number of containers to create'
+      register: count_prompt
+    - set_fact: 
+        container_count: "{{ count_prompt.user_input }}"
+    when: container_count is not defined
+
+  - block:
+    - name: Set the command to execute on the container(s) (e.g. sleep 2d)
+      pause:
+        prompt: 'Enter the command to execute on the container(s)'
+      register: command_prompt
+    - set_fact: 
+        container_command: "{{ command_prompt.user_input }}"
+    when: container_command is not defined
+
+  # Do
+  - name: DOCKER - Pull image "{{ container_image }}"
+    ansible.builtin.docker_image:
+      name: "{{ container_image }}"
+      source: pull
+    register: image_pulled
+  
+  - name: DOCKER - Create default containers
+    ansible.builtin.docker_container:
+      name: "{{ container_name }}-{{ item }}"
+      image: "{{ container_image }}"
+      command: "{{ container_command }}"
+      state: present
+    with_sequence: count="{{ container_count }}"
+    when: image_pulled is succeeded
+
+  - name: DOCKER - List containers
+    command: docker ps -a
+    register: list_docker_containers
+
+  - name: DOCKER - Display list of containers
+    debug:
+      msg: "{{ list_docker_containers.stdout }}"
+    when: list_docker_containers is defined
+
+  when: docker_started is succeeded
+

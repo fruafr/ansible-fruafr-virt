@@ -4,4 +4,4 @@
 - hosts: localhost
   remote_user: root
   roles:
-    - docker_test
+    - docker_list_containers

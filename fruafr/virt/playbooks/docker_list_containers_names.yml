@@ -1,0 +1,12 @@
+---
+# (c) Copyright: David HEURTEVENT, 2023
+# License: GPL 3.0
+
+#DOCKER - List containers names
+
+- hosts: all
+  become: true
+  collections:
+    - fruafr.virt
+  roles:
+    - docker_list_containers_names
