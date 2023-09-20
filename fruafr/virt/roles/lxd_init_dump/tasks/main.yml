@@ -1,0 +1,20 @@
+---
+# (c) Copyright: David HEURTEVENT, 2023
+# License: GPL 3.0
+# tasks file for lxd_init_dump
+
+# Backup (dump) the lxd init configuration
+# equivalent to lxd init --dump > /tmp/lxdconfig.yml
+
+- name: Set the filepath to backup to if not specified
+  pause:
+    prompt: 'Enter the filepath'
+  register: filepath_prompt
+  
+- set_fact:
+    filepath: "{{ filepath_prompt.user_input }}"
+  when: filepath is not defined
+
+- name: 'Backup (dump) the lxd init configuration'
+  become: true
+  shell: "lxd init --dump > {{ filepath }}"

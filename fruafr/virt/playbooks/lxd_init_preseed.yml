@@ -1,0 +1,13 @@
+---
+# (c) Copyright: David HEURTEVENT, 2023
+# License: GPL 3.0
+# tasks file for lxd_init_preseed
+
+# Load (preseed) the lxd init configuration
+# equivalent to lxd init --preseed < /tmp/lxdconfig.yml
+- hosts: all
+  become: true
+  collections:
+    - fruafr.virt
+  roles:
+    - lxd_init_preseed
