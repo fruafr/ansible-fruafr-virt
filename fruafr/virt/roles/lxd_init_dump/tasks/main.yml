@@ -6,13 +6,14 @@
 # Backup (dump) the lxd init configuration
 # equivalent to lxd init --dump > /tmp/lxdconfig.yml
 
-- name: Set the filepath to backup to if not specified
-  pause:
-    prompt: 'Enter the filepath'
-  register: filepath_prompt
-  
-- set_fact:
-    filepath: "{{ filepath_prompt.user_input }}"
+- block: 
+  - name: Set the filepath to backup to if not specified
+    pause:
+      prompt: 'Enter the filepath'
+    register: filepath_prompt
+    
+  - set_fact:
+      filepath: "{{ filepath_prompt.user_input }}"
   when: filepath is not defined
 
 - name: 'Backup (dump) the lxd init configuration'

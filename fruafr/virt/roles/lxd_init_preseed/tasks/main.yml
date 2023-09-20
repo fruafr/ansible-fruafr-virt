@@ -6,13 +6,14 @@
 # Load (preseed) the lxd init configuration
 # equivalent to lxd init --preseed < /tmp/lxdconfig.yml
 
-- name: Set the filepath to load backup from if not specified
-  pause:
-    prompt: 'Enter the filepath'
-  register: filepath_prompt
+- block:
+  - name: Set the filepath to load backup from if not specified
+    pause:
+      prompt: 'Enter the filepath'
+    register: filepath_prompt
   
-- set_fact:
-    filepath: "{{ filepath_prompt.user_input }}"
+  - set_fact:
+      filepath: "{{ filepath_prompt.user_input }}"
   when: filepath is not defined
 
 - name: 'Load (preseed) the lxd init configuration'
