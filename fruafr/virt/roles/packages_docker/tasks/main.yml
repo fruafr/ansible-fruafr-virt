@@ -19,7 +19,7 @@
         - containerd
         - runc
       state: absent
-      register: packages_removed
+    register: packages_removed
 
   #sudo apt-get update
   - name: "APT - update"
@@ -62,8 +62,8 @@
         ansible.builtin.apt:
           cache_valid_time: 86400 #One day
 
-      #sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
-      - name: APT - install docker-ce, docker-ce, docker-ce-cli, containerd.io, docker-compose-plugin
+      #sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+      - name: APT - install docker-ce, docker-ce, docker-ce-cli, containerd.io, docker-buildx-plugin, docker-compose-plugin
         become: true
         ansible.builtin.apt:
           pkg:
@@ -106,8 +106,8 @@
         ansible.builtin.apt:
           cache_valid_time: 86400 #One day
 
-      #sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
-      - name: APT - install docker-ce, docker-ce, docker-ce-cli, containerd.io, docker-compose-plugin
+      #sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+      - name: APT - install docker-ce, docker-ce, docker-ce-cli, containerd.io, docker-buildx-plugin, docker-compose-plugin
         become: true
         ansible.builtin.apt:
           pkg:
