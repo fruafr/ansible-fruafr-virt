@@ -1,0 +1,157 @@
+---
+# (c) Copyright: David HEURTEVENT, 2023
+# License: GPL 3.0
+# tasks file for packages_docker
+
+#Install Docker
+
+# Debian/Ubuntu
+- block: 
+  
+  #sudo apt-get remove docker docker-engine docker.io containerd runc
+  - name: APT - remove old packages
+    become: true
+    ansible.builtin.apt:
+      pkg:
+        - docker
+        - docker-engine
+        - docker.io
+        - containerd
+        - runc
+      state: absent
+      register: packages_removed
+
+  #sudo apt-get update
+  - name: "APT - update"
+    become: true
+    ansible.builtin.apt:
+      update_cache: true
+      cache_valid_time: 86400 #One day
+    register: cache_updated
+    when: packages_removed
+
+  - block:
+    # Install
+    - block :
+      
+      # Ubuntu
+      #https://docs.docker.com/engine/install/ubuntu/
+      #echo \
+      #  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com>  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+      - name: APT - Add Docker GPG apt Key
+        become: true
+        ansible.builtin.apt_key:
+          url: https://download.docker.com/linux/ubuntu/gpg
+          state: present
+
+      - name: APT - Check Distro Version
+        become: true
+        ansible.builtin.command: lsb_release -cs
+        register: release
+
+      - name: APT - Add Docker Repository
+        become: true
+        ansible.builtin.apt_repository:
+          repo: "deb https://download.docker.com/linux/ubuntu {{ release.stdout }} stable"
+          filename: docker
+          state: present
+
+      #sudo apt-get update
+      - name: APT - Update
+        become: true
+        ansible.builtin.apt:
+          cache_valid_time: 86400 #One day
+
+      #sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+      - name: APT - install docker-ce, docker-ce, docker-ce-cli, containerd.io, docker-compose-plugin
+        become: true
+        ansible.builtin.apt:
+          pkg:
+            - docker-ce
+            - docker-ce-cli
+            - containerd.io
+            - docker-buildx-plugin
+            - docker-compose-plugin
+          state: latest
+          update_cache: true
+        register: docker_installed
+      when: ansible_distribution == 'Ubuntu'
+
+    # Debian
+    # https://docs.docker.com/engine/install/debian/
+    - block:
+      #echo \
+      #  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com>  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+      - name: APT - Add Docker GPG apt Key
+        become: true
+        ansible.builtin.apt_key:
+          url: https://download.docker.com/linux/debian/gpg
+          state: present
+
+      - name: APT - Check Distro Version
+        become: true
+        ansible.builtin.command: lsb_release -cs
+        register: release
+
+      - name: APT - Add Docker Repository
+        become: true
+        ansible.builtin.apt_repository:
+          repo: "deb https://download.docker.com/linux/debian {{ release.stdout }} stable"
+          filename: docker
+          state: present
+
+      #sudo apt-get update
+      - name: APT - Update
+        become: true
+        ansible.builtin.apt:
+          cache_valid_time: 86400 #One day
+
+      #sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+      - name: APT - install docker-ce, docker-ce, docker-ce-cli, containerd.io, docker-compose-plugin
+        become: true
+        ansible.builtin.apt:
+          pkg:
+            - docker-ce
+            - docker-ce-cli
+            - containerd.io
+            - docker-buildx-plugin
+            - docker-compose-plugin
+          state: latest
+          update_cache: true
+        register: docker_installed
+      when: ansible_distribution == 'Debian'
+    when: cache_updated
+
+  # Common to Debian family
+  - block:
+    #Optional
+    #sudo pip install docker
+    - name: PIP - Install Docker Module for Python
+      ansible.builtin.pip:
+        name: docker
+      when: pip_python
+
+    - name : 'Set Docker configured'
+      become: true
+      ansible.builtin.set_fact:
+        docker_configured: true
+    when: docker_installed
+
+  when: ansible_os_family == 'Debian'
+
+# Common
+- block:
+  #sudo systemctl enable --now docker
+  - name: "service docker enabled at boot"
+    become: true
+    ansible.builtin.service:
+      name: 'docker'
+      enabled: true
+
+  #sudo systemctl start docker
+  - name: "service docker started"
+    become: true
+    ansible.builtin.service:
+      name: 'docker'
+      state: started
+  when: docker_configured is defined

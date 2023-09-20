@@ -63,7 +63,7 @@
   - name : 'Set Podman configured'
     become: true
     ansible.builtin.set_fact:
-      ansible_configured: true
+      podman_configured: true
     when: podman_installed
   when: ansible_os_family == 'Debian'
 
