@@ -1,0 +1,85 @@
+---
+# (c) Copyright: David HEURTEVENT, 2023
+# License: GPL 3.0
+# tasks file for packages_podman
+
+#Install Podman
+
+#https://podman.io/getting-started/installation
+
+# Debian/Ubuntu
+- block:
+
+  #sudo apt-get update
+  - name: "APT - update"
+    become: true
+    ansible.builtin.apt:
+      update_cache: true
+      cache_valid_time: 86400 #One day
+    register: cache_updated
+
+  - block:
+    # Install
+    - block :
+      
+      # Ubuntu
+      #Install podman on Ubuntu (> 20.10)
+      #sudo apt-get -y install podman
+      - name: "Install Podman on Ubuntu 20.10"
+        become: true
+        ansible.builtin.apt:
+          pkg:
+            - podman
+          state: latest
+        register: podman_installed
+        when: ansible_distribution_version == "20.10"
+
+      #sudo apt-get -y install podman
+      - name: "Install Podman after Ubuntu 20.10"
+        become: true
+        ansible.builtin.apt:
+          pkg:
+            - podman
+          state: latest
+        register: podman_installed
+        when: (ansible_distribution_major_version | int) > 20
+      when: ansible_distribution == 'Ubuntu'
+
+    # Debian
+    - block:
+      #sudo apt-get -y install podman
+      - name: "Install Podman after Ubuntu 20.10"
+        become: true
+        ansible.builtin.apt:
+          pkg:
+            - podman
+          state: latest
+        register: podman_installed
+        when: (ansible_distribution_major_version | int) >= 11
+      when: ansible_distribution == 'Debian'
+    when: cache_updated
+
+  # Common to Debian family
+  - name : 'Set Podman configured'
+    become: true
+    ansible.builtin.set_fact:
+      ansible_configured: true
+    when: podman_installed
+  when: ansible_os_family == 'Debian'
+
+# Common
+- block:
+  #sudo systemctl enable --now podman
+  - name: "service podman enabled at boot"
+    become: true
+    ansible.builtin.service:
+      name: 'podman'
+      enabled: true
+
+  #sudo systemctl start podman
+  - name: "service podman started"
+    become: true
+    ansible.builtin.service:
+      name: 'podman'
+      state: started
+  when: podman_configured is defined

@@ -10,6 +10,7 @@
 
   #sudo apt-get update
   - name: "APT - update"
+    become: true
     ansible.builtin.apt:
       update_cache: true
       cache_valid_time: 86400 #One day
@@ -24,6 +25,7 @@
 
       #sudo apt-get -y install qemu-kvm libvirt-bin bridge-utils virtinst 
       - name: "Install KVM/libvirt on Ubuntu 18.04"
+        become: true
         ansible.builtin.apt:
           pkg:
             - qemu-kvm 
@@ -36,6 +38,7 @@
 
       #sudo apt-get -y install qemu-kvm libvirt-daemon-system libvirt-clients libvirt-daemon bridge-utils virtinst 
       - name: "Install KVM/libvirt on Ubuntu 18.10"
+        become: true
         ansible.builtin.apt:
           pkg:
             - qemu-kvm 
@@ -50,6 +53,7 @@
 
       #sudo apt-get -y install qemu-kvm libvirt-daemon-system libvirt-clients libvirt-daemon bridge-utils virtinst 
       - name: "Install KVM/libvirt after Ubuntu 18.10"
+        become: true
         ansible.builtin.apt:
           pkg:
             - qemu-kvm 
@@ -68,6 +72,7 @@
     - block:
       #sudo apt-get -y install qemu-kvm libvirt-daemon-system libvirt-clients libvirt-daemon bridge-utils virtinst qemu-utils
       - name: "Install KVM/libvirt after Ubuntu 18.10"
+        become: true
         ansible.builtin.apt:
           pkg:
             - qemu-kvm 
@@ -86,6 +91,7 @@
   - block:
     #sudo usermod -aG libvirt $USER
     - name: "Ansible user in group libvirt"
+      become: true
       ansible.builtin.user:
         name: "{{ ansible_user }}"
         groups: libvirt
@@ -93,6 +99,7 @@
       
     #sudo usermod -aG kvm $USER
     - name: "Ansible user in group kvm"
+      become: true
       ansible.builtin.user:
         name: "{{ ansible_user }}"
         groups: kvm
@@ -101,6 +108,7 @@
 
     ## GUI
     - name: 'Install virt-manager (if appropriate)'
+      become: true
       ansible.builtin.apt:
         pkg:
           - virt-manager
@@ -115,13 +123,15 @@
 - block:
   #sudo systemctl enable --now libvirtd
   - name: "KVM/libvirt enabled at boot"
-    service:
+    become: true
+    ansible.builtin.service:
       name: 'libvirtd'
       enabled: true
 
   #sudo systemctl start libvirtd
   - name: "KVM/libvirt started"
-    service:
+    become: true
+    ansible.builtin.service:
       name: 'libvirtd'
       state: started
   when: kvm_configured is defined
