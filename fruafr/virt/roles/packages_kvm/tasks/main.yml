@@ -58,9 +58,9 @@
             - libvirt-daemon
             - bridge-utils
             - virtinst
-        state: latest
+          state: latest
         register: kvm_installed
-        when: ansible_distribution_major_version | int) > 18
+        when: (ansible_distribution_major_version | int) > 18
       when: ansible_distribution == 'Ubuntu'
 
     # Debian
@@ -77,7 +77,7 @@
             - bridge-utils
             - virtinst
             - qemu-utils
-        state: latest
+          state: latest
         register: kvm_installed
       when: ansible_distribution == 'Debian'
     when: cache_updated
@@ -88,14 +88,14 @@
     - name: "Ansible user in group libvirt"
       ansible.builtin.user:
         name: "{{ ansible_user }}"
-        group: libvirt
+        groups: libvirt
         append: true
       
     #sudo usermod -aG kvm $USER
     - name: "Ansible user in group kvm"
       ansible.builtin.user:
         name: "{{ ansible_user }}"
-        group: kvm
+        groups: kvm
         append: true
       register: kvm_configured
 

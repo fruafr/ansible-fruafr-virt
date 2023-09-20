@@ -1,0 +1,10 @@
+---
+# (c) Copyright: David HEURTEVENT, 2023
+# License: GPL 3.0
+# Test KVM virsh install
+- hosts: all
+  become: true
+  collections:
+    - fruafr.virt
+  roles:
+    - kvm_virsh_test

@@ -1,0 +1,13 @@
+---
+# (c) Copyright: David HEURTEVENT, 2023
+# License: GPL 3.0
+# tasks file for java_jre_test
+
+# Test KVM virsh install
+
+#Check virsh version
+- shell: virsh --version
+  register: virsh_version
+
+- name: virsh --version
+  debug: var=virsh_version.stdout_lines
