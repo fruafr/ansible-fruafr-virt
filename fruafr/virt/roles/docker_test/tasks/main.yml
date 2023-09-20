@@ -1,0 +1,33 @@
+---
+# (c) Copyright: David HEURTEVENT, 2023
+# License: GPL 3.0
+# tasks file for docker_test
+
+# Test docker install
+
+#Check docker version
+- shell: docker --version
+  register: docker_version
+
+- name: docker --version
+  debug: var=docker_version.stdout_lines
+
+# Hello World container cycle
+- name: Hello World container present or created
+  ansible.builtin.docker_container:
+    name: helloworld
+    state: present
+    image: hello-world
+    command: sleep infinity
+
+- name: Hello World container stopped
+  ansible.builtin.docker_container:
+    name: helloworld
+    state: stopped
+
+- name: remove Hello World container
+  ansible.builtin.docker_container:
+    name: helloworld
+    state: absent
+
+
