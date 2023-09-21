@@ -1,0 +1,48 @@
+---
+# (c) Copyright: David HEURTEVENT, 2023
+# License: GPL 3.0
+# tasks file for lxd_start
+# LXC/LXD - Start container(s)/vm(s)
+
+- set_fact:
+   _container_args1: ' --stateless'
+  when: stateless
+
+- block:
+  - set_fact:
+      _container_args2: " --console[\"{{ console }}\"]"
+    when: console | length > 0
+  when: console is not none
+
+- set_fact:
+    _container_args_final: "{{ container_args }}{{ _container_args1 }}{{ _container_args2 }}"
+  when: _container_args_final  | length == 0
+
+- name: "Start container or vm {{ container_name }}"
+  ansible.builtin.shell:
+    "lxc start {{ container_name }} {{ _container_args_final }}"
+  register: msg
+  ignore_errors: true  
+  when: container_name is defined
+
+- name: "Start all containers and vms"
+  ansible.builtin.shell:
+    "lxc start --all {{ _container_args_final }}"
+  register: msg
+  ignore_errors: true  
+  when: container_name is not defined
+
+- name: LXC/LXD - Display the output
+  ansible.builtin.debug:
+    msg: "{{msg.stdout_lines}}"
+  when: msg.stdout_lines is defined 
+
+- name: LXC/LXD - List the running containers and vms
+  ansible.builtin.shell:
+    "lxc list --format=json | jq -r '.[] | select(.state.status == \"Running\") | .name + \",\"'"
+  register: msg
+
+- name: LXC/LXD - Display the list of containers and vms
+  ansible.builtin.debug:
+    msg: "{{msg.stdout_lines}}"
+  when: msg is defined

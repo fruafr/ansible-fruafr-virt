@@ -1,0 +1,44 @@
+---
+# (c) Copyright: David HEURTEVENT, 2023
+# License: GPL 3.0
+# tasks file for lxd_stop
+# LXC/LXD - Stop container(s)/vm(s)
+
+- set_fact:
+   _container_args1: ' --stateful'
+  when: stateful
+
+- block:
+  - set_fact:
+      _container_args2: " --timeout {{ time }}"
+    when: time | length > 0
+  when: time is not none
+
+- block:
+  - set_fact:
+      _container_args3: " --force"
+    when: force | length > 0
+  when: force is not none
+
+- set_fact:
+    container_args_final: "{{ container_args }}{{ _container_args1 }}{{ _container_args2 }}{{ _container_args3 }}"
+  when: _container_args_final  | length == 0
+
+- name: "Stop container or vm {{ container_name }}"
+  ansible.builtin.shell:
+    "lxc stop {{ container_name }} {{ container_args_final }}"
+  register: msg
+  ignore_errors: true
+  when: container_name is defined
+
+- name: "Stop all containers and vms"
+  ansible.builtin.shell:
+    "lxc stop --all {{ _container_args_final }}"
+  register: msg
+  ignore_errors: true
+  when: container_name is not defined
+
+- name: LXC/LXD - Display the output
+  ansible.builtin.debug:
+    msg: "{{msg.stdout_lines}}"
+  when: msg.stdout_lines is defined 

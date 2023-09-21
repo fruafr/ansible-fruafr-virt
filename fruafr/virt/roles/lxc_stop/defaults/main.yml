@@ -1,0 +1,14 @@
+---
+# (c) Copyright: David HEURTEVENT, 2023
+# License: GPL 3.0
+# defaults file for lxc_stop
+container_args: ''
+stateful:
+force:
+time:
+
+#variables
+_container_args1: ''
+_container_args2: ''
+_container_args3: ''
+_container_args_final: ''

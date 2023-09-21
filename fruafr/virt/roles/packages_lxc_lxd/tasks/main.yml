@@ -19,11 +19,13 @@
     register: cache_updated
 
   - block:
-    #sudo apt-get -y install zfsutils-linux
-    - name: "Check zfsutils-linux is installed"
+    #sudo apt-get -y install zfsutils-linux python3-lxc lxc-utils
+    - name: "Check zfsutils-linux python3-lxc lxc-utils are installed"
       apt:
         pkg:
           - zfsutils-linux
+          - python3-lxc
+          - lxc-utils
         state: latest
 
     - name: Check snap is started

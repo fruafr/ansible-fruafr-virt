@@ -1,0 +1,12 @@
+---
+# (c) Copyright: David HEURTEVENT, 2023
+# License: GPL 3.0
+
+# LXC/LXD - Start container(s)/vm(s)
+
+- hosts: all
+  become: true
+  collections:
+    - fruafr.virt
+  roles:
+    - lxc_start
