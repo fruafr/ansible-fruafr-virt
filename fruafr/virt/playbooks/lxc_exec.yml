@@ -2,11 +2,11 @@
 # (c) Copyright: David HEURTEVENT, 2023
 # License: GPL 3.0
 
-# LXC/LXD - List the name of containers and vms (prefixed with -vm)
+# LXC/LXD - Execute a command on a container/vm
 
 - hosts: all
   become: true
   collections:
     - fruafr.virt
   roles:
-    - lxc_list_containers_names
+    - lxc_exec

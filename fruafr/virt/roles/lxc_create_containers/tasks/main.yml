@@ -42,7 +42,7 @@
 
 - name: LXC/LXD - Create one container - alt
   ansible.builtin.shell:
-    "lxc launch {{ container_image }} {{ container_name }}"
+    "lxc launch {{ container_image }} {{ container_name }} {{ container_args }}"
   when: "container_count | int == 1" 
 
 - name: LXC/LXD - List the running containers and vms

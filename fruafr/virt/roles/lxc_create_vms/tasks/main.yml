@@ -30,7 +30,7 @@
       prompt: 'Enter the number of vms to create'
     register: count_prompt
   - set_fact: 
-      vm_count: "{{ count_prompt.user_input }}-vm"
+      vm_count: "{{ count_prompt.user_input }}"
   when: vm_count is not defined
 
 # lxc launch <image_server>:<image_name> <instance_name>
@@ -42,7 +42,7 @@
 
 - name: LXC/LXD - Create one vm - alt
   ansible.builtin.shell:
-    "lxc launch {{ vm_image }} {{ vm_name }} --vm"
+    "lxc launch {{ vm_image }} {{ vm_name }} --vm {{ container_args }}"
   when: "vm_count | int == 1" 
 
 - name: LXC/LXD - List the running containers and vms (vms are prefixed with "-vm")

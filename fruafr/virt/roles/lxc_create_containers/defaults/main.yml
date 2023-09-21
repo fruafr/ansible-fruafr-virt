@@ -1,0 +1,5 @@
+---
+# (c) Copyright: David HEURTEVENT, 2023
+# License: GPL 3.0
+# tasks file for lxc_create_containers
+container_args:
