@@ -57,14 +57,22 @@
       source: pull
     register: image_pulled
   
-  - name: DOCKER - Create default containers
+  - name: DOCKER - Create the containers
     ansible.builtin.docker_container:
       name: "{{ container_name }}-{{ item }}"
       image: "{{ container_image }}"
       command: "{{ container_command }}"
       state: present
     with_sequence: count="{{ container_count }}"
-    when: image_pulled is succeeded
+    when: "image_pulled is succeeded and container_count | int > 1" 
+
+  - name: DOCKER - Create one container - alt
+    ansible.builtin.docker_container:
+      name: "{{ container_name }}-{{ item }}"
+      image: "{{ container_image }}"
+      command: "{{ container_command }}"
+      state: present
+    when: "image_pulled is succeeded and container_count | int == 1" 
 
   - name: DOCKER - List containers
     command: docker ps -a

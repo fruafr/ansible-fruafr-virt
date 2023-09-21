@@ -1,0 +1,57 @@
+---
+# (c) Copyright: David HEURTEVENT, 2023
+# License: GPL 3.0
+# tasks file for lxc_create_container
+
+# LXC/LXD - Create container(s)
+# Set variables
+- block:
+  - name: Set server:image if not specified
+    pause:
+      prompt: 'Enter the server:image name'
+    register: image_prompt
+    
+  - set_fact:
+      container_image: "{{ image_prompt.user_input }}"
+  when: container_image is not defined
+
+- block:
+  - name: Set the base container name if not specified
+    pause:
+      prompt: 'Enter the base container name (will be appended if several)'
+    register: name_prompt
+  - set_fact: 
+      container_name: "{{ name_prompt.user_input }}"
+  when: container_name is not defined
+
+- block:
+  - name: Set number of containers to create if not specified
+    pause:
+      prompt: 'Enter the number of containers to create'
+    register: count_prompt
+  - set_fact: 
+      container_count: "{{ count_prompt.user_input }}"
+  when: container_count is not defined
+
+# lxc launch <image_server>:<image_name> <instance_name>
+- name: LXC/LXD - Create the container(s)
+  ansible.builtin.shell:
+    "lxc launch {{ container_image }} {{ container_name }}-{{ item }}"
+  with_sequence: count="{{ container_count }}"
+  when: "container_count | int > 1" 
+
+- name: LXC/LXD - Create one container - alt
+  ansible.builtin.shell:
+    "lxc launch {{ container_image }} {{ container_name }}"
+  when: "container_count | int == 1" 
+
+- name: LXC/LXD - List the running containers
+  ansible.builtin.shell:
+    "lxc list --format=json | jq -r '.[] | select(.state.status == \"Running\") | .name + \",\"'"
+  register: msg
+
+- name: LXC/LXD - Display list of containers
+  ansible.builtin.debug:
+    msg: "{{msg.stdout_lines}}"
+  when: msg is defined
+
