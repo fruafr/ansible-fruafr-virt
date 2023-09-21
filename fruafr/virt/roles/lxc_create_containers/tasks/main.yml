@@ -37,7 +37,7 @@
 # ignore_errors is true so that we can fail recreating an existing container
 - name: LXC/LXD - Create the container(s)
   ansible.builtin.shell:
-    "lxc launch {{ container_image }} {{ container_name }}-{{ item }}"
+    "lxc launch {{ container_image }} {{ container_name }}-{{ item }} {{ container_args }}"
   with_sequence: count="{{ container_count }}"
   ignore_errors: true
   when: "container_count | int > 1" 
@@ -50,7 +50,7 @@
 
 - name: LXC/LXD - List the running containers and vms
   ansible.builtin.shell:
-    "lxc list --format=json | jq -r '.[] | select(.state.status == \"Running\") | .name + \",\"'"
+    "lxc list --format=json status=running"
   register: msg
 
 - name: LXC/LXD - Display the list of containers and vms
