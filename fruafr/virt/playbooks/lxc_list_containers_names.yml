@@ -2,7 +2,7 @@
 # (c) Copyright: David HEURTEVENT, 2023
 # License: GPL 3.0
 
-# LXC/LXD - List the name of running containers
+# LXC/LXD - List the name of running containers and vms (prefixed with -vm)
 
 - hosts: all
   become: true

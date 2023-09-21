@@ -1,0 +1,57 @@
+---
+# (c) Copyright: David HEURTEVENT, 2023
+# License: GPL 3.0
+# tasks file for lxc_create_vms
+
+# LXC - Create QEMU VMs
+# Set variables
+- block:
+  - name: Set server:image if not specified
+    pause:
+      prompt: 'Enter the server:image name'
+    register: image_prompt
+    
+  - set_fact:
+      vm_image: "{{ image_prompt.user_input }}"
+  when: vm_image is not defined
+
+- block:
+  - name: Set the base vm name if not specified
+    pause:
+      prompt: 'Enter the base vm name (will be appended if several)'
+    register: name_prompt
+  - set_fact: 
+      vm_name: "{{ name_prompt.user_input }}"
+  when: vm_name is not defined
+
+- block:
+  - name: Set number of vms to create if not specified
+    pause:
+      prompt: 'Enter the number of vms to create'
+    register: count_prompt
+  - set_fact: 
+      vm_count: "{{ count_prompt.user_input }}-vm"
+  when: vm_count is not defined
+
+# lxc launch <image_server>:<image_name> <instance_name>
+- name: LXC/LXD - Create the vm(s)
+  ansible.builtin.shell:
+    "lxc launch {{ vm_image }} {{ vm_name }}-vm-{{ item }}"
+  with_sequence: count="{{ vm_count }}"
+  when: "vm_count | int > 1" 
+
+- name: LXC/LXD - Create one vm - alt
+  ansible.builtin.shell:
+    "lxc launch {{ vm_image }} {{ vm_name }} --vm"
+  when: "vm_count | int == 1" 
+
+- name: LXC/LXD - List the running containers and vms (vms are prefixed with "-vm")
+  ansible.builtin.shell:
+    "lxc list --format=json | jq -r '.[] | select(.state.status == \"Running\") | .name + \",\"'"
+  register: msg
+
+- name: LXC/LXD - Display the list of running containers and vms (vms are prefixed with "-vm")
+  ansible.builtin.debug:
+    msg: "{{msg.stdout_lines}}"
+  when: msg is defined
+

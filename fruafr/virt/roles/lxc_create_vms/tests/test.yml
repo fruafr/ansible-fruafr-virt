@@ -4,4 +4,4 @@
 - hosts: localhost
   remote_user: root
   roles:
-    - lxc_create_container
+    - lxc_create_vms

@@ -9,4 +9,4 @@
   collections:
     - fruafr.virt
   roles:
-    - lxc_create_container
+    - lxc_create_containers

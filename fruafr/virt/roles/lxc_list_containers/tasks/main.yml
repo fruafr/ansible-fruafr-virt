@@ -3,14 +3,14 @@
 # License: GPL 3.0
 # tasks file for lxd_list_containers
 
-# LXC/LXD - List the running containers
+# LXC/LXD - List the running containers and vms (prefixed with -vm)
 
-- name: LXC/LXD - List the running containers
+- name: LXC/LXD - List the running containers and vms (prefixed with -vm)
   ansible.builtin.shell:
     "lxc list --format=json"
   register: msg
 
-- name: LXC/LXD - Display list of containers
+- name: LXC/LXD - Display the list of running containers  and vms (prefixed with -vm)
   ansible.builtin.debug:
     msg: "{{msg.stdout_lines}}"
   when: msg is defined
