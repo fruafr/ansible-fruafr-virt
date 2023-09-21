@@ -34,15 +34,18 @@
   when: container_count is not defined
 
 # lxc launch <image_server>:<image_name> <instance_name>
+# ignore_errors is true so that we can fail recreating an existing container
 - name: LXC/LXD - Create the container(s)
   ansible.builtin.shell:
     "lxc launch {{ container_image }} {{ container_name }}-{{ item }}"
   with_sequence: count="{{ container_count }}"
+  ignore_errors: true
   when: "container_count | int > 1" 
 
 - name: LXC/LXD - Create one container - alt
   ansible.builtin.shell:
     "lxc launch {{ container_image }} {{ container_name }} {{ container_args }}"
+  ignore_errors: true
   when: "container_count | int == 1" 
 
 - name: LXC/LXD - List the running containers and vms

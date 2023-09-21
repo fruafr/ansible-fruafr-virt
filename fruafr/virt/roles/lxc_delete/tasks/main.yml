@@ -1,0 +1,35 @@
+---
+# (c) Copyright: David HEURTEVENT, 2023
+# License: GPL 3.0
+# tasks file for lxc_delete
+
+# LXC/LXD - Delete a container/vm
+
+- block:
+  - name: Set the container (or VM) name if not specified
+    pause:
+      prompt: 'Enter the container (or VM) name'
+    register: name_prompt
+  - set_fact: 
+      container_name: "{{ name_prompt.user_input }}"
+  when: container_name is not defined
+
+- block:
+  - set_fact:
+      _force_flag: " --force"
+    when: force
+  when: force is not none
+
+- set_fact:
+    _container_args_final: "{{ container_args }}{{ _force_flag }}"
+  when: _container_args_final  | length == 0
+
+- name: "LXC/LXD - Delete the container/vm {{ container_name }}"
+  ansible.builtin.shell:
+    "lxc delete {{ container_name }}{{ _container_args_final }}"
+  register: msg
+
+- name: LXC/LXD - Display the output
+  ansible.builtin.debug:
+    msg: "{{msg.stdout_lines}}"
+  when: msg is defined

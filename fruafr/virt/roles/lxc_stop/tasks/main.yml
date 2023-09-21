@@ -11,18 +11,20 @@
 - block:
   - set_fact:
       _container_args2: " --timeout {{ time }}"
-    when: time | length > 0
+    when: time >= -1
   when: time is not none
 
 - block:
   - set_fact:
       _container_args3: " --force"
-    when: force | length > 0
+    when: force
   when: force is not none
 
 - set_fact:
     container_args_final: "{{ container_args }}{{ _container_args1 }}{{ _container_args2 }}{{ _container_args3 }}"
   when: _container_args_final  | length == 0
+
+# ignore_errors is true so that we can fail starting an already stopped container
 
 - name: "Stop container or vm {{ container_name }}"
   ansible.builtin.shell:

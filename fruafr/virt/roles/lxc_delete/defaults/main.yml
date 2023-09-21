@@ -1,0 +1,10 @@
+---
+# (c) Copyright: David HEURTEVENT, 2023
+# License: GPL 3.0
+# defaults file for lxc_delete
+force:
+container_args:
+
+#variables
+_container_args_final: ''
+_force_flag: ''

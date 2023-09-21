@@ -18,6 +18,8 @@
     _container_args_final: "{{ container_args }}{{ _container_args1 }}{{ _container_args2 }}"
   when: _container_args_final  | length == 0
 
+# ignore_errors is true so that we can fail starting an already running container
+
 - name: "Start container or vm {{ container_name }}"
   ansible.builtin.shell:
     "lxc start {{ container_name }} {{ _container_args_final }}"
