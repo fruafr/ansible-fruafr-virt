@@ -1,0 +1,43 @@
+---
+# (c) Copyright: David HEURTEVENT, 2023
+# License: GPL 3.0
+# tasks file for lxd_set_ipv4
+
+# LXC/LXD - Set the container IPv4 address
+
+- block:
+  - name: Set the container (or VM) name if not specified
+    pause:
+      prompt: 'Enter the container (or VM) name'
+    register: name_prompt
+  - set_fact: 
+      container_name: "{{ name_prompt.user_input }}"
+  when: container_name is not defined
+
+- block:
+  - name: Set the interface if not specified
+    pause:
+      prompt: 'Enter the interface name'
+    register: interface_prompt
+  - set_fact: 
+      interface: "{{ interface_prompt.user_input }}"
+  when: interface is not defined
+
+- block:
+  - name: Set the IPv4 address if not specified
+    pause:
+      prompt: 'Enter the IPv4 address'
+    register: ip_prompt
+  - set_fact: 
+      ipv4_address: "{{ ip_prompt.user_input }}"
+  when: ipv4_address is not defined
+
+- name: LXC/LXD - Set the container IPv4 address
+  ansible.builtin.shell:
+    "lxc config device {{ config_action }} {{ container_name }} {{ interface }} ipv4.address={{ ipv4_address}}"
+  register: msg
+
+- name: LXC/LXD - Display the container configuration
+  ansible.builtin.debug:
+    msg: "{{msg.stdout_lines}}"
+  when: msg is defined

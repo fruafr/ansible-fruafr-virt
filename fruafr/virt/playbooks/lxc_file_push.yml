@@ -1,0 +1,12 @@
+---
+# (c) Copyright: David HEURTEVENT, 2023
+# License: GPL 3.0
+
+# LXC/LXD - Push (copy) a file to the container
+
+- hosts: all
+  become: true
+  collections:
+    - fruafr.virt
+  roles:
+    - lxc_file_push

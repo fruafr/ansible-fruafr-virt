@@ -1,0 +1,43 @@
+---
+# (c) Copyright: David HEURTEVENT, 2023
+# License: GPL 3.0
+# tasks file for lxd_pull_file
+
+# LXC/LXD - Pull (copy) a file from the container
+
+- block:
+  - name: Set the container (or VM) name if not specified
+    pause:
+      prompt: 'Enter the container (or VM) name'
+    register: name_prompt
+  - set_fact: 
+      container_name: "{{ name_prompt.user_input }}"
+  when: container_name is not defined
+
+- block:
+  - name: Set the origin file or directory on the container if not specified
+    pause:
+      prompt: 'Enter the file or directory to pull from the container'
+    register: src_prompt
+  - set_fact: 
+      src_path : "{{ src_prompt.user_input }}"
+  when: src_path is not defined
+
+- block:
+  - name: Set the destination if not specified
+    pause:
+      prompt: 'Enter the destination where to pull the source to'
+    register: dest_prompt
+  - set_fact: 
+      dest_path: "{{ dest_prompt.user_input }}"
+  when: dest_path is not defined
+
+- name: "LXC/LXD - Copy the origin file or directory {{ src_path }} to the directory {{ dst_path }} from container {{ container_name }}"
+  ansible.builtin.shell:
+    "lxc file pull {{ container_name }}/{{ src_path }} {{ dst_path }} {{ copy_flags }}"
+  register: msg
+
+- name: LXC/LXD - Display the container configuration
+  ansible.builtin.debug:
+    msg: "{{msg.stdout_lines}}"
+  when: msg is defined
