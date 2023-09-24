@@ -27,14 +27,14 @@
   - name: Set the destination directory if not specified
     pause:
       prompt: 'Enter the directory where to push the file/folder to'
-    register: dest_prompt
+    register: dst_prompt
   - set_fact: 
-      dest_path: "{{ dest_prompt.user_input }}"
-  when: dest_path is not defined
+      dst_path: "{{ dst_prompt.user_input }}"
+  when: dst_path is not defined
 
-- name: "LXC/LXD - Copy the origin file or directory {{ src_path }} to the directory {{ dest_path }} in container {{ container_name }}"
+- name: "LXC/LXD - Copy the origin file or directory {{ src_path }} to the directory {{ dst_path }} in container {{ container_name }}"
   ansible.builtin.shell:
-    "lxc file push {{ src_path }} {{ container_name }}/{{ dest_path }} {{ copy_flags }}"
+    "lxc file push {{ src_path }} {{ container_name }}{{ dst_path }} {{ copy_flags }}"
   register: msg
 
 - name: LXC/LXD - Display the container configuration
