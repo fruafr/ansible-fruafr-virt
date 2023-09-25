@@ -1,0 +1,17 @@
+---
+# (c) Copyright: David HEURTEVENT, 2023
+# License: GPL 3.0
+# tasks file for maas_createadmin
+
+# Create the MAAS admin account
+- name: Create the admin account
+  ansible.builtin.expect: 
+    command: |
+      maas createadmin
+    responses:
+      'Username' : "{{ maas_admin_name }}"
+      'Password' : "{{ maas_admin_password }}"
+      'Again': "{{ maas_admin_password }}"
+      'Email': "{{ maas_admin_email }}"
+      'SSH keys' : "{{ maas_admin_ssh_keys }}"
+  when: maas_admin_reinitialize

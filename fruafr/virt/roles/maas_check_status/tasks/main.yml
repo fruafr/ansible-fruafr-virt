@@ -1,0 +1,17 @@
+---
+# (c) Copyright: David HEURTEVENT, 2023
+# License: GPL 3.0
+# tasks file for maas_check_status
+
+# Check that MAAS is properly install : Display its status and check that the interface is reachable
+- name: Display MAAS status
+  shell: maas status
+  register: status
+  ignore_errors: true
+
+- debug:
+    msg: "{{ status }}"
+
+- name: Check that MAAS interface is reachable and it returns a status 200
+  uri:
+    url: "http://{{ ansible_host }}:5240/MAAS/r"

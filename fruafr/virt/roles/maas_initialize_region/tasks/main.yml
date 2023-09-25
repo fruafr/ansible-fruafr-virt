@@ -1,0 +1,17 @@
+---
+# (c) Copyright: David HEURTEVENT, 2023
+# License: GPL 3.0
+# tasks file for maas_initialize_region
+
+#Initialize MAAS Region
+- name: Initialize the MAAS Region
+  ansible.builtin.expect: 
+    command: |
+      maas init "{{ maas_controller_type }}" --database-uri "postgres://"{{ db_user }}":"{{ db_password }}"@"{{ db_host }}"/"{{ db_name }}""
+    responses:
+      'initialize again' : 'yes'
+      'MAAS URL' : ''
+      'Performing database migrations': ''
+      'Stoppping services': ''
+      'Starting services' : ''
+  when: maas_reinitialize

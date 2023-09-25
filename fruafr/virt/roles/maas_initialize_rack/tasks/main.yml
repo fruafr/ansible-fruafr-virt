@@ -1,0 +1,20 @@
+---
+# (c) Copyright: David HEURTEVENT, 2023
+# License: GPL 3.0
+# tasks file for maas_initialize_rack
+
+# Initialize MAAS Rack
+- name: Initialize the MAAS Rack
+  #sudo maas init rack --maas-url $MAAS_URL --secret $SECRET
+  #https://maas.io/docs/how-to-configure-controllers
+  #secret is found on the region controller by cat /var/snap/maas/common/maas/secret
+  ansible.builtin.expect: 
+    command: |
+      maas init "{{ maas_controller_type }}" --maas-url "{{ maas_url }}" --secret "{{ maas_region_secret }}"
+    responses:
+      'initialize again' : 'yes'
+      'MAAS URL' : ''
+      'Performing database migrations': ''
+      'Stoppping services': ''
+      'Starting services' : ''
+  when: maas_reinitialize
